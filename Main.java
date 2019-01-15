@@ -14,7 +14,7 @@ public class Main implements Runnable {
 	private int     TARGET_UPS = 30;
 	private int     TARGET_FPS = 60;
 	
-	private Main(int width, int height) {
+	public Main(int width, int height) {
 		this.width = width;
 		this.height = height;
 		dim = new Dimension(width, height);
@@ -46,7 +46,7 @@ public class Main implements Runnable {
 		float  elapsed;
 		float  accumulated = 0f;
 		float  interval    = 1f / TARGET_UPS;
-		double time        = System.nanoTime();
+		double time;
 		double lastCall    = System.nanoTime();
 		
 		running = true;
@@ -54,7 +54,7 @@ public class Main implements Runnable {
 		while (running) {
 			time = System.nanoTime();
 			
-			elapsed = (float) ((lastCall - time) / 1e9);
+			elapsed = (float) ((time-lastCall) / 1e9);
 			lastCall = time;
 			
 			accumulated += elapsed;
@@ -65,7 +65,7 @@ public class Main implements Runnable {
 			}
 			//render once per loop, then wait until the render time slot is over before restarting
 			game.render();
-			sync(lastCall);
+			sync(lastCall/1e9);
 			
 		}
 		
@@ -78,7 +78,6 @@ public class Main implements Runnable {
 	private void sync(double lastCallTime) {
 		float  renderInterval = 1f / TARGET_FPS;
 		double endTime        = lastCallTime + renderInterval;
-		
 		//while current time is less than allotted time, wait
 		while (System.nanoTime() / 1e9 < endTime) {
 			try {
